@@ -162,5 +162,5 @@ chmod 644 $FILE
 echo '...installed'
 
 echo "Reloading sshd for updated RSA keys..."
-/etc/init.d/sshd reload
+systemctl restart sshd
 echo '...reloaded'

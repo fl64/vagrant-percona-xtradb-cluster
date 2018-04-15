@@ -1,6 +1,9 @@
 #!/bin/bash
 
-yum install -y Percona-Server-shared-51 Percona-XtraDB-Cluster-56 xinetd
+setenforce 0
+sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
+
+yum install -y Percona-Server-shared-51 Percona-XtraDB-Cluster-56
 
 echo '[mysqld]
 
@@ -58,21 +61,21 @@ innodb_flush_log_at_trx_commit  = 2
 
 ' > /etc/my.cnf
 
+
+
 if [ "$1" == '1' ]; then
-  /etc/init.d/mysql bootstrap-pxc
+  systemctl enable --now mysql@bootstrap.service
   mysql -uroot -e "GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'sstuser'@'localhost' IDENTIFIED BY 's3cret';"
   mysql -uroot -e 'GRANT PROCESS ON *.* TO "clustercheckuser"@"localhost" IDENTIFIED BY "clustercheckpassword!";'
   mysql -uroot -e 'create database clusterup;'
   mysql -uroot -e 'grant all on clusterup.* to "cu"@"%" identified by "cu";'
   mysql -uroot -e "FLUSH PRIVILEGES;"
 else
-  /etc/init.d/mysql start
+  systemctl enable --now mysql
 fi
 
 mysql -uroot -te "show status like 'wsrep%';" | egrep 'wsrep_cluster_size|wsrep_cluster_status|wsrep_connected|wsrep_local_state|Variable_name|\+'
 
-echo 'mysqlchk 9200/tcp # mysqlchk' >> /etc/services
-/etc/init.d/xinetd restart
+#echo 'mysqlchk 9200/tcp # mysqlchk' >> /etc/services
+#/etc/init.d/xinetd restart
 
-chkconfig xinetd on
-chkconfig mysql on

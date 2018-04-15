@@ -1,5 +1,8 @@
 #!/bin/bash
 
+setenforce 0
+sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
+
 yum install -y haproxy.x86_64
 
 echo '
@@ -33,17 +36,17 @@ frontend pxc-front
 backend pxc-back
     mode tcp
     balance leastconn
-    option httpchk
+    option mysql-check
     # The config lets you set up 1-9 nodes, so we cover them all here just in case
-    server m1 192.168.56.31:3306 check port 9200 inter 5s rise 3 fall 3
-    server m2 192.168.56.32:3306 check port 9200 inter 5s rise 3 fall 3
-    server m3 192.168.56.33:3306 check port 9200 inter 5s rise 3 fall 3
-    server m4 192.168.56.34:3306 check port 9200 inter 5s rise 3 fall 3
-    server m5 192.168.56.35:3306 check port 9200 inter 5s rise 3 fall 3
-    server m6 192.168.56.36:3306 check port 9200 inter 5s rise 3 fall 3
-    server m7 192.168.56.37:3306 check port 9200 inter 5s rise 3 fall 3
-    server m8 192.168.56.38:3306 check port 9200 inter 5s rise 3 fall 3
-    server m9 192.168.56.39:3306 check port 9200 inter 5s rise 3 fall 3
+    server m1 192.168.56.31:3306 check port 3306 inter 5s rise 3 fall 3
+    server m2 192.168.56.32:3306 check port 3306 inter 5s rise 3 fall 3
+    server m3 192.168.56.33:3306 check port 3306 inter 5s rise 3 fall 3
+    server m4 192.168.56.34:3306 check port 3306 inter 5s rise 3 fall 3
+    server m5 192.168.56.35:3306 check port 3306 inter 5s rise 3 fall 3
+    server m6 192.168.56.36:3306 check port 3306 inter 5s rise 3 fall 3
+    server m7 192.168.56.37:3306 check port 3306 inter 5s rise 3 fall 3
+    server m8 192.168.56.38:3306 check port 3306 inter 5s rise 3 fall 3
+    server m9 192.168.56.39:3306 check port 3306 inter 5s rise 3 fall 3
 
 frontend stats-front
     bind *:80
@@ -54,14 +57,11 @@ backend stats-back
     mode http
     balance roundrobin
     stats uri /haproxy/stats
-    stats auth pxcstats:secret
+    stats auth admin:admin
 
 ' > /etc/haproxy/haproxy.cfg
 
-/etc/init.d/haproxy restart
-
-chkconfig haproxy on
-
+systemctl enable --now haproxy
 
 # Install newer sysbench
 yum install -y bzr mysql-devel gcc gcc-c++ autoconf automake make libtool
@@ -77,7 +77,7 @@ sudo yum -y install sysbench
 
 # install the oltp lua test
 mkdir /usr/share/sysbench/tests/db -p
-cp sysbench/tests/db/* /usr/share/sysbench/tests/db
+#cp sysbench/tests/db/* /usr/share/sysbench/tests/db
 
 ## sysbench --test=/usr/share/sysbench/tests/db/oltp.lua --db-driver=mysql --mysql-engine-trx=yes --mysql-table-engine=innodb --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=cu --mysql-password=cu --mysql-db=clusterup --oltp-table-size=10000 prepare
 ## sysbench --test=/usr/share/sysbench/tests/db/oltp.lua --db-driver=mysql --mysql-engine-trx=yes --mysql-table-engine=innodb --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=cu --mysql-password=cu --mysql-db=clusterup --oltp-table-size=10000 --num-threads=16 run
