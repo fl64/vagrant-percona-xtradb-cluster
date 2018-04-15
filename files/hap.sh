@@ -21,9 +21,9 @@ defaults
     retries 3
     option redispatch
     maxconn 2000
-    contimeout 5000
-    clitimeout 50000
-    srvtimeout 50000
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
 
 frontend pxc-front
     bind *:3306
@@ -65,12 +65,15 @@ chkconfig haproxy on
 
 # Install newer sysbench
 yum install -y bzr mysql-devel gcc gcc-c++ autoconf automake make libtool
-bzr branch lp:sysbench
-cd sysbench
-./autogen.sh
-./configure --prefix=/usr --mandir=/usr/share/man
-make
-make install
+#bzr branch lp:sysbench
+#cd sysbench
+#./autogen.sh
+#./configure --prefix=/usr --mandir=/usr/share/man
+#make
+#make install
+
+curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.rpm.sh | sudo bash
+sudo yum -y install sysbench
 
 # install the oltp lua test
 mkdir /usr/share/sysbench/tests/db -p

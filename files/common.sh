@@ -4,7 +4,7 @@
 yum install -y nano nc wget htop lsof
 
 # It's all Percona all the way down...
-yum install -y http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+yum install -y http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 
 # This next part set's up the systems so that the vagrant and root
 # users can ssh by key from server to server. ControlCluster uses

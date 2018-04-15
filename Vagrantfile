@@ -3,7 +3,7 @@ Vagrant.configure('2') do |config|
     # Use the same centos6.5 box for everyone
     config.vm.box     = "centos65-x86_64-20140116"
     config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
-    
+
     # Everyone gets the common install parts
     config.vm.provision :shell, :path => "./files/common.sh"
 
@@ -30,9 +30,9 @@ Vagrant.configure('2') do |config|
         end
         cc.vm.provision :shell, :path => "./files/cc.sh"
     end
-    
+
     # Setup many slaves -- don't setup more than 9 or the IP allocation will break since "192.168.56.310" is not a valid IP :D
-    (1..5).each do |i|
+    (1..1).each do |i|
         config.vm.define "m#{i}" do |pxcnode|
             pxcnode.vm.hostname = "m#{i}.local.dev"
             pxcnode.vm.network :private_network, ip: "192.168.56.3#{i}", virtualbox__intnet: "clusternet"
